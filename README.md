@@ -23,7 +23,7 @@ SQLITE as datasource inventory for Ansible
   
   use "table_host_vars" to set label of table to query, matches with be set as hostvar
    
-  Example with var from table *inputs.disk*
+  Example with var from table *inputs.disk* with 2 cols ignore_fs and mount_points
 
 ## Script output :
 
