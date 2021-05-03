@@ -6,6 +6,8 @@ import sqlite3
 # Format Ansible expects for all
 # { "group1": { "hosts": [], "vars": {} }, "group2": { "hosts": [], "vars": {} }, "_meta": {"hostvars": {}} }
 
+table_host_vars=['"inputs.disk"']
+
 def init_sample_if_empty(): 
     return
 
@@ -34,8 +36,6 @@ def query_members_of(groupname):
     return [ ix[0] for ix in query_db('SELECT hostname from hosts WHERE groupname = "'+groupname+ '"') ]
 def query_children_of(groupname):
     return [ ix[0] for ix in query_db('SELECT groupname from groups WHERE children_of = "'+groupname+ '"') ]
-
-
     
 def query_group_vars(groupname):
     result = [dict(ix) for ix in query_db('SELECT * from groups WHERE groupname = "'+groupname+ '"') ]
@@ -45,12 +45,19 @@ def query_group_vars(groupname):
         return {}
 def query_host_args(hostname):
     vars_dict = {}
-    query_result=query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')
-    result = [dict(ix) for ix in query_result]
-    try:
-        return result[0]
-    except:
-        return {}
+    for table_vars in table_host_vars:
+        query_result = query_db('SELECT * FROM '+table_vars+' WHERE hostname = "' + hostname + '"')
+        try :
+            result = [dict(ix) for ix in query_result][0]
+            del result['hostname']  
+            del result['groupname']
+            vars_dict[table_vars.replace('"','')] = result
+        except:
+            pass
+    query_result = query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')
+    dictB = [dict(ix) for ix in query_result][0]
+    vars_dict = {**vars_dict, **dictB}
+    return vars_dict
 
 def main():
     init_sample_if_empty()
