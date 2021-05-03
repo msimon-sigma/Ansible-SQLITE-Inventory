@@ -53,6 +53,7 @@ SQLITE as datasource inventory for Ansible
         ]
     }
 }
+
 '''
 
 
