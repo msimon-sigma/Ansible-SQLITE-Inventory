@@ -34,7 +34,7 @@ SQLITE as datasource inventory for Ansible
                 "ansible_ssh_user": "ansible_ssh_user1",
                 "groupname": "",
                 "hostname": "host1",
-                *"inputs.disk"*: {
+                "inputs.disk": {
                     "ignore_fs": "['tmpfs', 'iso9660', 'overlay', 'aufs', 'squashfs']",
                     "mount_points": "['/']"
                 }
