@@ -26,6 +26,14 @@ def query_db(query):
     db_connection.close()
     return query_result
 
+def del_none(d):
+  for key, value in list(d.items()):
+    if value is None or value == '' :
+        del d[key]
+    elif isinstance(value, dict):
+        del_none(value)
+  return d
+
 def query_all_hosts():
     return [row[0] for row in query_db('SELECT hostname from hosts')]
 def query_group_list():
@@ -40,7 +48,9 @@ def query_children_of(groupname):
 def query_group_vars(groupname):
     result = [dict(ix) for ix in query_db('SELECT * from groups WHERE groupname = "'+groupname+ '"') ]
     try:
-        return result[0]
+        del result[0]['children_of']  
+        del result[0]['groupname']
+        return del_none(result[0])
     except:
         return {}
 def query_host_args(hostname):
@@ -56,8 +66,10 @@ def query_host_args(hostname):
             pass
     query_result = query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')
     dictB = [dict(ix) for ix in query_result][0]
+    del dictB['hostname']  
+    del dictB['groupname']    
     vars_dict = {**vars_dict, **dictB}
-    return vars_dict
+    return del_none(vars_dict)
 
 def main():
     init_sample_if_empty()
