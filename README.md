@@ -34,7 +34,7 @@ SQLITE as datasource inventory for Ansible
             "host1": {
                 "ansible_port": "ansible_port1",
                 "ansible_ssh_user": "ansible_ssh_user1",
-                "groupname": "",
+                "groupname": "group1",
                 "hostname": "host1",
                 "inputs.disk": {
                     "ignore_fs": "['tmpfs', 'iso9660', 'overlay', 'aufs', 'squashfs']",
@@ -49,13 +49,27 @@ SQLITE as datasource inventory for Ansible
         ]
     },
     "group1": {
-        "children": [],
-        "hosts": [],
+        "children": [
+            "group2"
+        ],
+        "hosts": [
+            "host1"
+        ],
         "vars": {
             "children_of": "",
             "group_ansible_port": "ansible_port",
             "group_ansible_ssh_user": "11111ansible_ssh_user",
             "groupname": "group1"
+        }
+    },
+    "group2": {
+        "children": [],
+        "hosts": [],
+        "vars": {
+            "children_of": "group1",
+            "group_ansible_port": "ansible_port",
+            "group_ansible_ssh_user": "11111ansible_ssh_user",
+            "groupname": "group2"
         }
     }
 }
@@ -70,7 +84,10 @@ SQLITE as datasource inventory for Ansible
             "host1": {
                 "ansible_port": "ansible_port1",
                 "ansible_ssh_user": "ansible_ssh_user1",
-                "groupname": "",
+                "children_of": "",
+                "group_ansible_port": "ansible_port",
+                "group_ansible_ssh_user": "11111ansible_ssh_user",
+                "groupname": "group1",
                 "hostname": "host1",
                 "inputs.disk": {
                     "ignore_fs": "['tmpfs', 'iso9660', 'overlay', 'aufs', 'squashfs']",
@@ -85,7 +102,10 @@ SQLITE as datasource inventory for Ansible
             "ungrouped"
         ]
     },
-    "ungrouped": {
+    "group1": {
+        "children": [
+            "group2"
+        ],
         "hosts": [
             "host1"
         ]
