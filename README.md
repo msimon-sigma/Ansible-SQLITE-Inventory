@@ -25,6 +25,43 @@ SQLITE as datasource inventory for Ansible
    
   Example with var from table *inputs.disk*
 
+## Script output :
+
+```
+{
+    "_meta": {
+        "hostvars": {
+            "host1": {
+                "ansible_port": "ansible_port1",
+                "ansible_ssh_user": "ansible_ssh_user1",
+                "groupname": "",
+                "hostname": "host1",
+                "inputs.disk": {
+                    "ignore_fs": "['tmpfs', 'iso9660', 'overlay', 'aufs', 'squashfs']",
+                    "mount_points": "['/']"
+                }
+            }
+        }
+    },
+    "all": {
+        "hosts": [
+            "host1"
+        ]
+    },
+    "group1": {
+        "children": [],
+        "hosts": [],
+        "vars": {
+            "children_of": "",
+            "group_ansible_port": "ansible_port",
+            "group_ansible_ssh_user": "11111ansible_ssh_user",
+            "groupname": "group1"
+        }
+    }
+}
+```
+
+## ansible-inventory --list
 
 ```
 {
