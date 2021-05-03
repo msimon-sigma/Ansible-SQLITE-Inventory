@@ -25,7 +25,7 @@ SQLITE as datasource inventory for Ansible
   
 
 
-'''
+```
 {
     "_meta": {
         "hostvars": {
@@ -53,7 +53,6 @@ SQLITE as datasource inventory for Ansible
         ]
     }
 }
-
-'''
+```
 
 
