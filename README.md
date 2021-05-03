@@ -22,7 +22,8 @@ SQLITE as datasource inventory for Ansible
   colums : *hostname*
   
   use "table_host_vars" to set label of table to query, matches with be set as hostvar
-  
+   
+  Example with data from table *inputs.disk*
 
 
 ```
