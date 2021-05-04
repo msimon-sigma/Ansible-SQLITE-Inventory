@@ -7,6 +7,7 @@ import sqlite3
 # { "group1": { "hosts": [], "vars": {} }, "group2": { "hosts": [], "vars": {} }, "_meta": {"hostvars": {}} }
 
 table_host_vars=['"inputs.disk"']
+table_group_vars=['"inputs.mem"']
 
 def init_sample_if_empty(): 
     return
@@ -17,7 +18,7 @@ except ImportError:
     import simplejson as json
 
 def query_db(query):
-    db_connection = sqlite3.connect("/vagrant/ansible/data.db")
+    db_connection = sqlite3.connect("/vagrant/database/data.db")
     db_connection.row_factory = sqlite3.Row
     c = db_connection.cursor()
     c.execute(query)
@@ -46,29 +47,57 @@ def query_children_of(groupname):
     return [ ix[0] for ix in query_db('SELECT groupname from groups WHERE children_of = "'+groupname+ '"') ]
     
 def query_group_vars(groupname):
-    result = [dict(ix) for ix in query_db('SELECT * from groups WHERE groupname = "'+groupname+ '"') ]
-    try:
-        del result[0]['children_of']  
-        del result[0]['groupname']
-        return del_none(result[0])
+    vars_dict = {}
+    # complexe vars
+    for table_vars in table_group_vars :
+        query_result = query_db('SELECT * FROM '+table_vars+' WHERE groupname = "' + groupname + '"')
+        try :
+            result = [dict(ix) for ix in query_result][0]
+            del result['groupname']  
+            vars_dict[table_vars.replace('"','')] = result
+        except:
+            pass
+    try: # hostvars_table
+        query_result = query_db("SELECT key,value FROM groupvars_"+groupname )
+        dict_groupvars = {}
+        for key,value in query_result :
+            dict_groupvars[key]=value
+        print(json.dumps(dict_hostvars, indent = 4))
+        vars_dict = {**vars_dict, **dict_groupvars}
     except:
-        return {}
+        pass
+    # groupvars from group table
+    query_result = query_db('SELECT * FROM groups WHERE groupname = "' + groupname + '"')
+    vars_from_groups = [dict(ix) for ix in query_result][0]
+    del vars_from_groups['groupname']  
+    vars_dict = {**vars_dict, **vars_from_groups}
+    return del_none(vars_dict)
+
 def query_host_args(hostname):
     vars_dict = {}
-    for table_vars in table_host_vars:
+    # complexe vars
+    for table_vars in table_host_vars :
         query_result = query_db('SELECT * FROM '+table_vars+' WHERE hostname = "' + hostname + '"')
         try :
             result = [dict(ix) for ix in query_result][0]
             del result['hostname']  
-            del result['groupname']
             vars_dict[table_vars.replace('"','')] = result
         except:
             pass
+    try: # hostvars_table
+        query_result = query_db("SELECT key,value FROM hostvars_"+hostname )
+        dict_hostvars = {}
+        for key,value in query_result :
+            dict_hostvars[key]=value
+        print(json.dumps(dict_hostvars, indent = 4))
+        vars_dict = {**vars_dict, **dict_hostvars}
+    except:
+        pass
+    # hostvars from host table
     query_result = query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')
-    dictB = [dict(ix) for ix in query_result][0]
-    del dictB['hostname']  
-    del dictB['groupname']    
-    vars_dict = {**vars_dict, **dictB}
+    vars_from_hosts = [dict(ix) for ix in query_result][0]
+    del vars_from_hosts['hostname']  
+    vars_dict = {**vars_dict, **vars_from_hosts}
     return del_none(vars_dict)
 
 def main():
