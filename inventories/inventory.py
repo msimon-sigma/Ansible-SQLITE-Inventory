@@ -48,27 +48,22 @@ def query_children_of(groupname):
     
 def query_group_vars(groupname):
     vars_dict = {}
-    # complexe vars
-    for table_vars in table_group_vars :
-        query_result = query_db('SELECT * FROM '+table_vars+' WHERE groupname = "' + groupname + '"')
+    for table_vars in table_group_vars : # complexe vars
         try :
-            result = [dict(ix) for ix in query_result][0]
+            result = [dict(ix) for ix in query_db('SELECT * FROM '+table_vars+' WHERE groupname = "' + groupname + '"')][0]
             del result['groupname']  
             vars_dict[table_vars.replace('"','')] = result
         except:
             pass
     try: # hostvars_table
-        query_result = query_db("SELECT key,value FROM groupvars_"+groupname )
         dict_groupvars = {}
-        for key,value in query_result :
+        for key,value in query_db("SELECT key,value FROM groupvars_"+groupname ) :
             dict_groupvars[key]=value
-        print(json.dumps(dict_hostvars, indent = 4))
         vars_dict = {**vars_dict, **dict_groupvars}
     except:
         pass
     # groupvars from group table
-    query_result = query_db('SELECT * FROM groups WHERE groupname = "' + groupname + '"')
-    vars_from_groups = [dict(ix) for ix in query_result][0]
+    vars_from_groups = [dict(ix) for ix in query_db('SELECT * FROM groups WHERE groupname = "' + groupname + '"')][0]
     del vars_from_groups['groupname']  
     vars_dict = {**vars_dict, **vars_from_groups}
     return del_none(vars_dict)
@@ -77,25 +72,21 @@ def query_host_args(hostname):
     vars_dict = {}
     # complexe vars
     for table_vars in table_host_vars :
-        query_result = query_db('SELECT * FROM '+table_vars+' WHERE hostname = "' + hostname + '"')
         try :
-            result = [dict(ix) for ix in query_result][0]
+            result = [dict(ix) for ix in query_db('SELECT * FROM '+table_vars+' WHERE hostname = "' + hostname + '"')][0]
             del result['hostname']  
             vars_dict[table_vars.replace('"','')] = result
         except:
             pass
     try: # hostvars_table
-        query_result = query_db("SELECT key,value FROM hostvars_"+hostname )
         dict_hostvars = {}
-        for key,value in query_result :
+        for key,value in query_db("SELECT key,value FROM hostvars_"+hostname ) :
             dict_hostvars[key]=value
-        print(json.dumps(dict_hostvars, indent = 4))
         vars_dict = {**vars_dict, **dict_hostvars}
     except:
         pass
     # hostvars from host table
-    query_result = query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')
-    vars_from_hosts = [dict(ix) for ix in query_result][0]
+    vars_from_hosts = [dict(ix) for ix in query_db('SELECT * FROM hosts WHERE hostname = "' + hostname + '"')][0]
     del vars_from_hosts['hostname']  
     vars_dict = {**vars_dict, **vars_from_hosts}
     return del_none(vars_dict)
